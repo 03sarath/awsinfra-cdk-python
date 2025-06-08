@@ -1,58 +1,120 @@
+# AWS CDK Python CI/CD Pipeline Project
 
-# Welcome to your CDK Python project!
+This project demonstrates how to create a CI/CD pipeline using AWS CDK with Python. The pipeline pulls code from GitHub and uses AWS CodeBuild to update a simple text file.
 
-This is a blank project for CDK development with Python.
+## Prerequisites
 
-The `cdk.json` file tells the CDK Toolkit how to execute your app.
+- Python 3.6 or later
+- AWS CLI configured with appropriate credentials
+- GitHub account and repository
+- AWS CDK CLI installed (`npm install -g aws-cdk`)
 
-This project is set up like a standard Python project.  The initialization
-process also creates a virtualenv within this project, stored under the `.venv`
-directory.  To create the virtualenv it assumes that there is a `python3`
-(or `python` for Windows) executable in your path with access to the `venv`
-package. If for any reason the automatic creation of the virtualenv fails,
-you can create the virtualenv manually.
+## Setup Steps
 
-To manually create a virtualenv on MacOS and Linux:
+1. **Initialize a new CDK project**
+   ```bash
+   mkdir awsinfra-cdk-python
+   cd awsinfra-cdk-python
+   cdk init app --language python
+   ```
 
+2. **Create and activate a virtual environment**
+   ```bash
+   python -m venv .venv
+   .venv\Scripts\activate  # On Windows
+   # OR
+   source .venv/bin/activate  # On Unix/MacOS
+   ```
+
+3. **Install dependencies**
+   ```bash
+   pip install -r requirements.txt
+   ```
+
+4. **Update requirements.txt**
+   Make sure your `requirements.txt` contains:
+   ```
+   aws-cdk-lib==2.199.0
+   constructs>=10.0.0,<11.0.0
+   ```
+
+5. **Store GitHub token in AWS Secrets Manager**
+   ```bash
+   aws secretsmanager create-secret --name github-token --secret-string "your-github-token"
+   ```
+
+6. **Update the stack configuration**
+   - Open `awsinfra_cdk_python/awsinfra_cdk_python_stack.py`
+   - Update the GitHub repository details:
+     ```python
+     owner='your-github-username'
+     repo='your-repository-name'
+     branch='your-branch-name'
+     ```
+
+7. **Synthesize CloudFormation template**
+   ```bash
+   cdk synth
+   ```
+
+8. **Deploy the stack**
+   ```bash
+   cdk deploy
+   ```
+
+## Project Structure
+
+- `app.py`: The entry point for the CDK app
+- `awsinfra_cdk_python/awsinfra_cdk_python_stack.py`: Contains the stack definition
+- `cdk.json`: CDK configuration file
+- `requirements.txt`: Python dependencies
+
+## Pipeline Components
+
+1. **Source Stage**
+   - Pulls code from GitHub repository
+   - Uses GitHub webhook for automatic triggers
+
+2. **Build Stage**
+   - Uses AWS CodeBuild
+   - Updates or creates a `hello.txt` file
+   - Adds timestamp and build information
+
+## Useful Commands
+
+- `cdk ls` - List all stacks in the app
+- `cdk synth` - Emits the synthesized CloudFormation template
+- `cdk deploy` - Deploy this stack to your default AWS account/region
+- `cdk diff` - Compare deployed stack with current state
+- `cdk destroy` - Destroy the deployed stack
+
+## Troubleshooting
+
+If you encounter issues:
+
+1. **Build Script Errors**
+   - Check the CodeBuild logs in AWS Console
+   - Verify the build commands in the stack file
+
+2. **GitHub Connection Issues**
+   - Verify the GitHub token in AWS Secrets Manager
+   - Check repository permissions
+   - Ensure the webhook is properly configured
+
+3. **CDK Deployment Issues**
+   - Make sure AWS credentials are properly configured
+   - Check if you have necessary permissions
+   - Verify the region and account settings
+
+## Cleanup
+
+To remove all resources:
+```bash
+cdk destroy
 ```
-$ python -m venv .venv
-```
 
-After the init process completes and the virtualenv is created, you can use the following
-step to activate your virtualenv.
+## Security Notes
 
-```
-$ source .venv/bin/activate
-```
-
-If you are a Windows platform, you would activate the virtualenv like this:
-
-```
-% .venv\Scripts\activate.bat
-```
-
-Once the virtualenv is activated, you can install the required dependencies.
-
-```
-$ pip install -r requirements.txt
-```
-
-At this point you can now synthesize the CloudFormation template for this code.
-
-```
-$ cdk synth
-```
-
-To add additional dependencies, for example other CDK libraries, just add
-them to your `setup.py` file and rerun the `pip install -r requirements.txt`
-command.
-
-## Useful commands
-
- * `cdk ls`          list all stacks in the app
- * `cdk synth`       emits the synthesized CloudFormation template
- * `cdk deploy`      deploy this stack to your default AWS account/region
- * `cdk diff`        compare deployed stack with current state
- * `cdk docs`        open CDK documentation
-
-Enjoy!
+- Never commit sensitive information like tokens or credentials
+- Use AWS Secrets Manager for storing sensitive data
+- Follow the principle of least privilege when setting up IAM roles
