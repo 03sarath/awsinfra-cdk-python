@@ -56,6 +56,9 @@ This project demonstrates how to create a CI/CD pipeline using AWS CDK with Pyth
    ```bash
    cdk synth
    ```
+   ```
+   cdk bootstrap
+   ```
 
 8. **Deploy the stack**
    ```bash
